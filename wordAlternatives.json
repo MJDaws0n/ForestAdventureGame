@@ -1,0 +1,55 @@
+{
+    "yes":[
+        "yes",
+        "ye",
+        "yar",
+        "why not",
+        "i guess",
+        "of course",
+        "absolutely",
+        "sure thing",
+        "indeed",
+        "certainly",
+        "definitely",
+        "affirmative",
+        "by all means",
+        "for sure",
+        "without a doubt",
+        "no doubt",
+        "without question",
+        "surely",
+        "yeah",
+        "yep",
+        "yup",
+        "uh-huh",
+        "okay",
+        "alright",
+        "sure",
+        "aye",
+        "yess",
+        "yesss",
+        "yessss",
+        "yaas queen"
+    ],
+    "forward":[
+        "forward",
+        "up",
+        "forwards",
+        "north"
+    ],
+    "right":[
+        "right",
+        "east"
+    ],
+    "backward":[
+        "backward",
+        "back",
+        "down",
+        "backwards",
+        "south"
+    ],
+    "left":[
+        "left",
+        "west"
+    ]
+}
