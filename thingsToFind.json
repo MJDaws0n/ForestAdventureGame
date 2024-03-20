@@ -1,0 +1,22 @@
+[
+    {
+        "name": "small hut",
+        "enterable": true
+    },
+    {
+        "name": "pile of leaves",
+        "enterable": false
+    },
+    {
+        "name": "strange man",
+        "enterable": false
+    },
+    {
+        "name": "pencil",
+        "enterable": false
+    },
+    {
+        "name": "graveyard",
+        "enterable": true
+    }
+]

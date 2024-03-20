@@ -59,22 +59,23 @@ function game(wordAlternatives){
                                     });
                                 }
                                 direction((direction)=>{
-                                    var find = findLoc();
-                                    coolTypingEffect(`Once heading ${direction}, you find a ${find}.`,()=>{
-                                        coolTypingEffect(`Do you wish to proceed into the ${find}?`,()=>{
-                                            function proceed(callback){
-                                                getInput('> ', (response)=>{
-                                                    if(wordMatches('yes', response, wordAlternatives)){
-                                                        callback(true);
-                                                    }
-                                                });
-                                            }
-                                            proceed((proceed)=>{
-                                                if(proceed){
-                                                    coolTypingEffect(`Entering the ${find}...`,()=>{
-
+                                    findLoc((find)=>{
+                                        coolTypingEffect(`Once heading ${direction}, you find a ${find.name}.`,()=>{
+                                            coolTypingEffect(`Do you wish to proceed into the ${find.name}?`,()=>{
+                                                function proceed(callback){
+                                                    getInput('> ', (response)=>{
+                                                        if(wordMatches('yes', response, wordAlternatives)){
+                                                            callback(true);
+                                                        }
                                                     });
                                                 }
+                                                proceed((proceed)=>{
+                                                    if(proceed){
+                                                        coolTypingEffect(`Entering the ${find}...`,()=>{
+    
+                                                        });
+                                                    }
+                                                });
                                             });
                                         });
                                     });
@@ -175,6 +176,30 @@ function clearConsole(){
         console.log('\r\n');
     }
 }
-function findLoc(){
-    return 'small hut';
+function findLoc(callback){
+    const fs = require('fs');
+
+    function readJSONFile(filename, callback) {
+        fs.readFile(filename, 'utf8', (err, data) => {
+            if (err) {
+                return callback(err);
+            }
+            try {
+                const json = JSON.parse(data);
+                callback(null, json);
+            } catch (error) {
+                callback(error);
+            }
+        });
+    }
+    const filePath = './thingsToFind.json';
+
+    readJSONFile(filePath, (err, json) => {
+        // Generate a random index
+        const randomIndex = Math.floor(Math.random() * json.length);
+
+        // Access the randomly chosen location
+        const randomlyChosenLocation = json[randomIndex];
+        callback(randomlyChosenLocation);
+    });
 }
