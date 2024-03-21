@@ -1,6 +1,6 @@
 const { clear } = require('node:console');
 
-function game(wordAlternatives){
+function game2(wordAlternatives){
     var name = '';
     coolTypingEffect('Welcome to the Forest Exploring Story Game.' , ()=>{
         function doName(callback){
@@ -59,26 +59,14 @@ function game(wordAlternatives){
                                     });
                                 }
                                 direction((direction)=>{
-                                    findLoc((find)=>{
-                                        coolTypingEffect(`Once heading ${direction}, you find a ${find.name}.`,()=>{
-                                            coolTypingEffect(`Do you wish to proceed into the ${find.name}?`,()=>{
-                                                function proceed(callback){
-                                                    getInput('> ', (response)=>{
-                                                        if(wordMatches('yes', response, wordAlternatives)){
-                                                            callback(true);
-                                                        }
-                                                    });
-                                                }
-                                                proceed((proceed)=>{
-                                                    if(proceed){
-                                                        coolTypingEffect(`Entering the ${find}...`,()=>{
-    
-                                                        });
-                                                    }
-                                                });
-                                            });
+                                    async function gameStep() {
+                                        var find = await findLoc();
+                                        coolTypingEffect(find.name, ()=>{
+                                            console.log('Done');
                                         });
-                                    });
+                                    }
+
+                                    gameStep();
                                 });
                             });
                         });
@@ -87,6 +75,10 @@ function game(wordAlternatives){
             });
         });
     });
+}
+async function game(wordAlternatives){
+    await coolTypingEffect('Hello');
+    await coolTypingEffect('How are you');
 }
 getWordAlternatives((wordAlternatives)=>{
     game(wordAlternatives);
@@ -145,30 +137,29 @@ function wordMatches(word, input, alternatives){
         return false;
     }
 }
-function coolTypingEffect(word, callback, clearAfter) {
+function coolTypingEffect(word) {
     const typingSpeed = 20; // Adjust this value to control typing speed
     const delay = Math.floor(1000 / (word.length * typingSpeed));
 
-    var i = 0;
-    run();
-    function run(){
-        setTimeout(() => {
-            process.stdout.write(word.charAt(i));
-            i++;
-            if(word.charAt(i) == '\n'){
-                console.log(); // Make a new line work with the process.stdout.write method
-            }
-            if(i != word.length){
-                run();
-            } else{
-                console.log();
-                callback();
-            }
-        }, delay * 10);
-    }
-    if(clearAfter){
-        clearConsole();
-    }
+    return new Promise(resolve => {
+        var i = 0;
+        run();
+        function run() {
+            setTimeout(() => {
+                process.stdout.write(word.charAt(i));
+                i++;
+                if (word.charAt(i) == '\n') {
+                    console.log();
+                }
+                if (i != word.length) {
+                    run();
+                } else {
+                    console.log();
+                    resolve();
+                }
+            }, delay * 10);
+        }
+    });
 }
 function clearConsole(){
     var lines = process.stdout.getWindowSize()[1];
@@ -177,29 +168,31 @@ function clearConsole(){
     }
 }
 function findLoc(callback){
-    const fs = require('fs');
+    return new Promise(resolve => {
+        const fs = require('fs');
 
-    function readJSONFile(filename, callback) {
-        fs.readFile(filename, 'utf8', (err, data) => {
-            if (err) {
-                return callback(err);
-            }
-            try {
-                const json = JSON.parse(data);
-                callback(null, json);
-            } catch (error) {
-                callback(error);
-            }
+        function readJSONFile(filename, callback) {
+            fs.readFile(filename, 'utf8', (err, data) => {
+                if (err) {
+                    return callback(err);
+                }
+                try {
+                    const json = JSON.parse(data);
+                    callback(null, json);
+                } catch (error) {
+                    callback(error);
+                }
+            });
+        }
+        const filePath = './thingsToFind.json';
+
+        readJSONFile(filePath, (err, json) => {
+            // Generate a random index
+            const randomIndex = Math.floor(Math.random() * json.length);
+
+            // Access the randomly chosen location
+            const randomlyChosenLocation = json[randomIndex];
+                resolve(randomlyChosenLocation);
         });
-    }
-    const filePath = './thingsToFind.json';
-
-    readJSONFile(filePath, (err, json) => {
-        // Generate a random index
-        const randomIndex = Math.floor(Math.random() * json.length);
-
-        // Access the randomly chosen location
-        const randomlyChosenLocation = json[randomIndex];
-        callback(randomlyChosenLocation);
     });
 }
