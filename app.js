@@ -77,8 +77,7 @@ function game2(wordAlternatives){
     });
 }
 async function game(wordAlternatives){
-    await coolTypingEffect('Hello');
-    await coolTypingEffect('How are you');
+    await coolTypingEffect('Welcome to the Forest Exploring Story Game.');
 }
 getWordAlternatives((wordAlternatives)=>{
     game(wordAlternatives);
