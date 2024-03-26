@@ -1,83 +1,122 @@
 const { clear } = require('node:console');
 
-function game2(wordAlternatives){
-    var name = '';
-    coolTypingEffect('Welcome to the Forest Exploring Story Game.' , ()=>{
-        function doName(callback){
-            function getName(x){
-                name = x;
-                callback();
-            }
-            coolTypingEffect('Lets get started with some infomation.\nWhat\'s your name?',()=>{
-                getInput('> ', (x)=>{getName(x)});
-            });
+const inventory = {
+    items: [
+        {
+            name: 'knife',
+            type: 'weapon'
         }
-        doName(()=>{
-            coolTypingEffect(`Are you ready to play ${name}?`,()=>{
-                function readyToPlay(callback){
-                    getInput('> ', (response)=>{
-                        if(!wordMatches('yes', response, wordAlternatives)){
-                            coolTypingEffect(`I think we should try that again! Are you ready to play ${name}`,()=>{
-                                readyToPlay(callback);
-                                return;
-                            });
-                        } else{
-                            callback();
-                        }
-                    });
-                }
-                readyToPlay(()=>{
-                    coolTypingEffect('Alright then, let\'s play',()=>{
-                        coolTypingEffect('Your plane has just been shot down. You have just found yourself in an mysterious forest...',()=>{
-                            coolTypingEffect('Which direction do you head?',()=>{
-                                function direction(callback){
-                                    getInput('> ', (response)=>{
-                                        if(!(
-                                            wordMatches('forward', response, wordAlternatives) ||
-                                            wordMatches('right', response, wordAlternatives) ||
-                                            wordMatches('backward', response, wordAlternatives) ||
-                                            wordMatches('left', response, wordAlternatives)
-                                        )){
-                                            coolTypingEffect(`I'm not sure which direction that is ${name}. Lets try: Forwards, Backwards, Left or Right`,()=>{
-                                                direction(callback);
-                                                return;
-                                            });
-                                        } else{
-                                            if(wordMatches('forward', response, wordAlternatives)){
-                                                callback('forward');
-                                            }
-                                            if(wordMatches('right', response, wordAlternatives)){
-                                                callback('right');
-                                            }
-                                            if(wordMatches('backward', response, wordAlternatives)){
-                                                callback('backward');
-                                            }
-                                            if(wordMatches('left', response, wordAlternatives)){
-                                                callback('left');
-                                            }
-                                        }
-                                    });
-                                }
-                                direction((direction)=>{
-                                    async function gameStep() {
-                                        var find = await findLoc();
-                                        coolTypingEffect(find.name, ()=>{
-                                            console.log('Done');
-                                        });
-                                    }
+    ],
+    add: async function(name, type, saturation, amount){
+        const newItem = {
+            name: name,
+            type: type
+        };
 
-                                    gameStep();
-                                });
-                            });
-                        });
-                    });
-                });
-            });
-        });
-    });
-}
+        if(saturation){
+            newItem['saturation'] = saturation;
+        }
+
+        await coolTypingEffect('Added '+amount+' '+name+'\'s to your inventory');
+
+        for(var i = 0; i < amount; i++){
+            this.items.push(newItem)
+        }
+    }
+};
+
+const places = {
+    village: async function(name){
+        await coolTypingEffect('Village man -> "Welcome to the village, explorer. What\'s your name?"');
+        await coolTypingEffect('Me -> "Me...? I am '+name+'."');
+        await coolTypingEffect('Village man -> "What can I do for you '+name+'?"');
+        await coolTypingEffect('What help would you like:\na) Ask for some food.\nb) Ask for some medical help for a cut you just discovered on your leg.\nc) Ask for some money that may come in handy at some point.\nd) Leave.\ne) Rob him.');
+        
+        // Get the letter input
+        while(!['a', 'b', 'c', 'd', 'e'].includes(action = await getInput('> '))){
+            await coolTypingEffect('Village man -> "I have no clue what you want. Try and explain again."');
+            await coolTypingEffect('What help would you like:\na) Ask for some food.\nb) Ask for some medical help for a cut you just discovered on your leg.\nc) Ask for some money that may come in handy at some point.\nd) Leave.\ne) Rob the village man.');
+        }
+
+        // Do action
+        if(action.toLowerCase() == 'a'){
+            await coolTypingEffect('Village man -> "Of course '+name+'! Here are some baked potatoes for you."');
+        }
+        if(action.toLowerCase() == 'b'){
+            await coolTypingEffect('Village man -> "Here. Let use treat your cut '+name+'!"');
+        }
+        if(action.toLowerCase() == 'c'){
+            await coolTypingEffect('Village man -> "Errrm. I\'m not sure how far money will get you on this island '+name+'!"');
+            await coolTypingEffect('Me -> "This is an is an island????"');
+            await coolTypingEffect('Village man -> "Yes. This is an island."');
+        }
+        if(action.toLowerCase() == 'e'){
+            await coolTypingEffect('Me -> "Give me everything you have got or I will kill you!!"');
+            await coolTypingEffect('Village man -> "I suggest you leave. Now!"');
+            await coolTypingEffect('Me -> "What! You think you scare me!"');
+            await coolTypingEffect('Tribal men holding spears surround you. What do you do:');
+
+            await coolTypingEffect('a) Run.\nb) Fight.');
+
+            // Get the letter input
+            while(!['a', 'b'].includes(choice = await getInput('> '))){
+                await coolTypingEffect('That it not something you can do here. Quick pick, they are closing in on you!');
+            }
+
+            if(choice.toLowerCase() == 'a'){
+                await coolTypingEffect('You escape gaining nothing.');
+            }
+            if(choice.toLowerCase() == 'b'){
+                await coolTypingEffect('Me -> "Alright then, lets see it."');
+
+                await coolTypingEffect('Pick a random number between 1 and 2 to see if you win or loose the fight.');
+
+                // Get the number
+                while(!['1', '2'].includes(numberChoice = await getInput('> '))){
+                    await coolTypingEffect('That is not a valid choice. Quick pick, they are closing in on you!');
+                }
+
+                const randomNumber = Math.random();
+
+                if(randomNumber < 0.5){ // The actual input is irrelevant it's all luck based
+                    await coolTypingEffect('You fool. They surrounded you, and beat you to death.');
+                } else{
+                    await coolTypingEffect('Me -> "Phew! I got away with it. And I got some cooked pork. Thank god that knife came in handy. Lets hope no-one finds this village. Everyone is dead now!"');
+                    inventory.add(name = 'cooked pork', type = 'food', saturation = 6, amount = 4);
+                }
+            }
+        }
+        if(action.toLowerCase() == 'd'){
+            await coolTypingEffect('Village man -> "Goodbye and good luck traveler."');
+        }
+    }
+};
+
 async function game(wordAlternatives){
+    // Game start
     await coolTypingEffect('Welcome to the Forest Exploring Story Game.');
+    const name = await getInput('Lets start with your name\n> ');
+    await coolTypingEffect('Are you ready to play '+name+'?');
+
+    // Ready to play
+    while(!wordMatches(wordAlternatives, await getInput('> '), ['yes'])){
+        await coolTypingEffect('Lets try this again! Are you ready to play?');
+    }
+
+    // Game start
+    await coolTypingEffect('Your plane has just been shot down. You have just found yourself in an mysterious forest...');
+
+    // Move direction
+    while(!wordMatches(wordAlternatives, direction = await getInput('Which direction do you head?\n> '), ['forward', 'right', 'backwards', 'left'])){
+        await coolTypingEffect('Sorry I\'m not sure which way that is, try North South East or West.');
+    }
+
+    await coolTypingEffect('Heading '+direction+'...');
+    await wait(1000);
+    clearConsole();
+    
+    // Visit the village
+    await places.village(name);
 }
 getWordAlternatives((wordAlternatives)=>{
     game(wordAlternatives);
@@ -88,19 +127,20 @@ getWordAlternatives((wordAlternatives)=>{
  * Asks for an input from the user 
  * 
  * @param {String} title - What you wish to ask the user
- * @param {Function} callback - The function that should be ran with the user input as the first param
  */
-function getInput(title, callback){
+function getInput(title){
     const readline = require('node:readline');
 
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-      
-    rl.question(title, (userInput) => {
-        rl.close();
-        callback(userInput);
+    return new Promise(resolve => {
+        const rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+        
+        rl.question(title, (userInput) => {
+            rl.close();
+            resolve(userInput);
+        });
     });
 }
 function getWordAlternatives(rootCallback){
@@ -129,12 +169,16 @@ function getWordAlternatives(rootCallback){
         rootCallback(json);
     });
 }
-function wordMatches(word, input, alternatives){
-    if(alternatives[word.toLowerCase()]){
-        return alternatives[word.toLowerCase()].includes(input.toLowerCase());
-    } else{
-        return false;
+function wordMatches(alternatives, input, words){
+    for (let i = 0; i < words.length; i++) {
+        let word = words[i];
+        if (alternatives[word.toLowerCase()]) {
+            if (alternatives[word.toLowerCase()].includes(input.toLowerCase())) {
+                return word;
+            }
+        }
     }
+    return false;
 }
 function coolTypingEffect(word) {
     const typingSpeed = 20; // Adjust this value to control typing speed
@@ -193,5 +237,12 @@ function findLoc(callback){
             const randomlyChosenLocation = json[randomIndex];
                 resolve(randomlyChosenLocation);
         });
+    });
+}
+function wait(delay){
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve();
+        }, delay);
     });
 }

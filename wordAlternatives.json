@@ -47,9 +47,5 @@
         "down",
         "backwards",
         "south"
-    ],
-    "left":[
-        "left",
-        "west"
     ]
 }
